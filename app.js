@@ -66,7 +66,7 @@ window.setInterval(()=>{
 
 //Maintenant si on veut éviter parce que c'est pas hyper clair le props on reprend le nom du props directement
 
-// function testComposant(name){
+n// function testComposant(name){
 //     return <h1>Hey {name}</h1>
 // }
 
@@ -185,22 +185,21 @@ class Incremente extends React.Component{
 
     constructor (props){
         super (props)
-        this.state = {nombre: props.start } // on a notre qui prend comme valeur initial le props start
-        this.timer = null;
+        this.state = {nombre: props.start, timer: null} // on a notre qui prend comme valeur initial le props start
+        
     }
 
     componentDidMount (){
-        this.timer = window.setInterval(this.increment.bind(this), 1000)
+        this.play()
 
     }
 
     componentWillUnmount(){
-        window.clearInterval(this.timer)
+        window.clearInterval(this.state.timer)
     }
 
 
-    /* 
-     
+    /*  
      Cette methode peut causer des problèmes parce que React est capable d'appeler les éléments 
      à la chaine
     Il est donc recommandé de faire d'écrire cela dans une méthode !!
@@ -211,17 +210,31 @@ class Incremente extends React.Component{
            return {nombre : state.nombre + 1}
         })
     }
-
-   
      */
 
     increment () {
-           this.setState ((state, props) => ({nombre : this.state.nombre + 1 + props.step }))
+           this.setState ((state, props) => ({nombre :state.nombre + props.step }))
          }
+
+    stop(){
+        window.clearInterval(this.state.timer)
+        this.setState({
+            timer: null
+        })
+    } 
+    
+    play(){
+        this.setState({
+            timer: window.setInterval(this.increment.bind(this), 1000)
+        })
+        
+    }
         
     render (){
         return <div>
-            <strong> Mon incrermentatioin {this.state.nombre}</strong>
+            <strong> Mon incrermentatioin {this.state.nombre} </strong>
+            <button onClick = {this.stop.bind(this)}>Pause</button>
+            <button onClick = {this.stop.play(this)}>Lire</button>
         </div>
     }
 }
@@ -236,27 +249,32 @@ Incremente.defaultProps = {
     step : 1
 }
 
-class ButtonDincrement extends React.Component {
-    constructor(props){
-        super(props)
-        this.state = {n: 1}
-    }
+// class ButtonDincrement extends React.Component {
+//     constructor(props){
+//         super(props)
+//         this.state = {n: 0}
+//     }
 
-    increment () {
-        this.setState(
-            function(state, props){
-                return {nombre : state.nombre + 1}
-            }
-        )
-    }
 
-      render(){
-        return <div>
-            valeur : {this.state.n} <button onClick={this.increment.bind(this)}>Incrementer</button>
-        </div>
-      }
+//     incrementer () {
+//         this.setState ((state, props) => ({n : this.state.n + 1 }))
+//       }
+      
+
+//       render(){
+//         return <div>
+//             valeur : {this.state.n} <button onClick={this.incrementer.bind(this)}>Incrementer</button>
+//         </div>
+//       }
      
-}
+// }
+
+/*
+    - WARNING: Attention à comment tu appelles tes méthodes avoir plusieurs méthodes du même nom
+        même s'ils ne sont pas créées dans les même contexte peut poser problème plutart et de même
+        pour tout autre type de variable.
+*/
+
 
 
 
@@ -264,7 +282,7 @@ function Home (){
     return <div>
         <Welcome name = "Yohane" />
         <Welcome name = "@m-yohane"/>
-        <ButtonDincrement/>
+        <Incremente/>
     </div>
 }
 
