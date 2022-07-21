@@ -66,12 +66,13 @@ window.setInterval(()=>{
 
 //Maintenant si on veut éviter parce que c'est pas hyper clair le props on reprend le nom du props directement
 
-n// function testComposant(name){
+// function testComposant(name){
 //     return <h1>Hey {name}</h1>
 // }
 
 // Les propos dans les fonctions React ont droit à des enfants: children
 
+/*
 function WelcomeFunc({name, children}){
     return  <div>
             <h1> Hey {name}</h1>  
@@ -80,6 +81,8 @@ function WelcomeFunc({name, children}){
              </p>
     </div> 
 }
+
+*/
 
 // ReactDOM.render(<Welcome name ="Yohane">Aller t'as capté t'es un bon !</Welcome>,document.querySelector('#appjs'));
 
@@ -129,6 +132,7 @@ Et pour que le name et le children soit pris en comptes tous deux il faut impér
 
 */
 
+/*
 class Welcome extends React.Component{
 
     render() {
@@ -177,10 +181,11 @@ class Horloge extends React.Component{
     
 }
 
+*/
 
 // Une composant qui incrémente un chiffre toute les seconcdes
 
-
+/*
 class Incremente extends React.Component{
 
     constructor (props){
@@ -198,6 +203,7 @@ class Incremente extends React.Component{
         window.clearInterval(this.state.timer)
     }
 
+*/
 
     /*  
      Cette methode peut causer des problèmes parce que React est capable d'appeler les éléments 
@@ -212,6 +218,7 @@ class Incremente extends React.Component{
     }
      */
 
+    /*
     increment () {
            this.setState ((state, props) => ({nombre :state.nombre + props.step }))
          }
@@ -224,26 +231,49 @@ class Incremente extends React.Component{
     } 
     
     play(){
+        window.clearInterval(this.state.timer)
         this.setState({
             timer: window.setInterval(this.increment.bind(this), 1000)
         })
-        
+    }
+
+    toggle(){
+        return this.state.timer ? this.pause() : this.play()
+    }
+
+    label (){
+        return this.state.timer ? 'Pause' : 'Lecture'
+    }
+
+    renitialize (){
+        this.setState((state, props) => ({nombre :props.start }))
     }
         
     render (){
         return <div>
             <strong> Mon incrermentatioin {this.state.nombre} </strong>
-            <button onClick = {this.stop.bind(this)}>Pause</button>
-            <button onClick = {this.stop.play(this)}>Lire</button>
+          {/*
+          CECI EST DU TERNAIRE Conditionnel: si this.state.timer tu fais un stop dans le cas contraire
+          tu fais un play
+          {this.state.timer ?
+            <button onClick = {this.stop.bind(this)}>Pause</button> :
+            <button onClick = {this.play.bind(this)}>Lire</button> }  
+
+            <button onClick = {this.toggle.bind(this)}> {this.label()} </button>
+            <button onClick = {this.renitialize.bind(this)}>Renitialize</button>
         </div>
+
     }
 }
+
+*/
 
 /* 
    React nous permet de définir la valeur par defaut des props de nos composant ce qui fait 
    qu'on peut les rappeler ensuite
 */
 
+/*
 Incremente.defaultProps = {
     start : 0,
     step : 1
@@ -273,10 +303,14 @@ Incremente.defaultProps = {
     - WARNING: Attention à comment tu appelles tes méthodes avoir plusieurs méthodes du même nom
         même s'ils ne sont pas créées dans les même contexte peut poser problème plutart et de même
         pour tout autre type de variable.
+
+    - WARNING: Il est très sensible à la casse si y a un caractère qui traine 
+        ça peut faire planter tout le reste du programme
+    
+    - ASTUCE: Toujours checker au niveau de la console pour voir si y a des éventuels bugs
 */
 
-
-
+/*
 
 function Home (){
     return <div>
@@ -286,9 +320,167 @@ function Home (){
     </div>
 }
 
+
+
+class Home extends React.Component{
+
+    constructor(props){
+        super(props)
+        this.state = {
+            nom:['Yohane', 'Math'],
+            checked: true
+        }
+
+        this.handleChange= this.handleChange.bind(this)
+        this.handleChangeRadio= this.handleChangeRadio.bind(this)
+
+    }
+
+    handleChangeRadio(e){
+        this.setState({
+            checked:e.target.checked
+        })
+    }
+    handleChange(e){
+        this.setState({
+          nom : Array.from(e.target.selectedOptions).map(o=>o.value)
+        })
+    }
+
+    render (){
+        return <div>
+            <label htmlFor="nom">Nom</label>
+            <input type= "text" id= "nom" name="nom" value = {this.state.nom} onChange = {this.handleChange}/>
+            <br></br>
+            {JSON.stringify(this.state.nom)}
+            <select value = {this.state.nom} onChange = {this.handleChange} multiple>
+                <option>Math</option>
+                <option>SVT</option>
+                <option>Sciences Physiques</option>
+            </select>
+            <label htmlFor="checked">Prêt</label>
+            <input type= "checkbox" id = "checked" name = "checked" value = {this.state.checked} onChange = {this.handleChangeRadio}/>
+            {this.state.checked ? <div>T'es un bon viens avec nous</div>: null}
+        </div>
+        
+    }
+}
+
+*/
+
+// Le problème qu'on a ici c'est qu'on doit créer pour chaque champ une méthode HandleChange pour gérer les changements pas très efficace pour le coup
+
+/* 
+    On va donc utiliser l'attribut name de la balise input qui est commun à tous ces champs pour non pas suivre l'évolution d'état d'un champs 
+    mais de l'état de l'attribut name dans tous les champs
+*/
+
+/* 
+class Field extends React.Component{
+    render (){
+        const {name, value, onChange, children} = this.props
+        return <div className= "form-group">
+            <label htmlFor={name}>{children}</label>
+            <input type="text" value ={value} onChange={onChange} id={name} name={name} className= "form-control"/>
+        </div>
+    }
+}
+
+On peut écrire ça dans une fonction
+ */
+
+function Field ({name, value, onChange, children}){
+        return <div className= "form-group">
+            <label htmlFor={name}>{children}</label>
+            <input type="text" value ={value} onChange={onChange} id={name} name={name} className= "form-control"/>
+        </div>
+}
+
+function Checkbox ({name, value, onChange, children}){
+    return <div className= "form-check">
+        <input type="checkbox"  checked={value} onChange={onChange} id={name} name={name} className= "form-check-input"/>
+        <label htmlFor={name} className ="form-check-label">{children}</label>
+    </div>
+}
+
+class Home extends React.Component{
+
+    constructor(props){
+        super(props)
+        this.state = {
+            nom:'',
+            prenom:'',
+            newsletter: false
+        }
+
+        this.handleChange= this.handleChange.bind(this)
+        this.handleSubmit= this.handleSubmit.bind(this)
+    }
+
+
+    handleChange(e){
+        const name = e.target.name
+        const type = e.target.type
+        const value = type === 'checkbox' ? e.target.checked :  e.target.value
+        this.setState({
+            [name]:value
+        })
+    }
+
+    handleSubmit(e){
+        e.preventDefault();
+        const data = JSON.stringify(this.state);
+        console.log(data);
+        this.setState({
+            nom:'',
+            prenom:'',
+            newsletter: false //Pour réinitialiser les résultats
+        })
+    }
+
+    /*
+    render (){
+        return <div>
+            <div>
+                <label htmlFor="nom">Nom</label>
+                <input type= "text" id= "nom" name="nom" value = {this.state.nom} onChange = {this.handleChange}/>
+            </div>
+            <div> 
+                <label htmlFor="prenom">Prénom</label>
+                <input type= "text" id= "prenom" name="prenom" value = {this.state.prenom} onChange = {this.handleChange}/>
+            </div>
+            <div>
+                <label htmlFor="newsletter">S'abonner à notre newsletter</label>
+                <input type= "checkbox" id = "newsletter" name = "newsletter" checked = {this.state.newsletter} onChange = {this.handleChange}/>
+            </div>
+            {this.state.newsletter ? <div>T'es un bon viens avec nous</div>: null}
+            {JSON.stringify(this.state)}
+        </div>
+        
+    }
+
+    // - Y a une autre façon de créer des formulaires c'est de faire des classes contenant une structure de base qu'on pourra reprendre 
+
+    */
+
+    render (){
+        console.log('render')
+        return <form className = "container" onSubmit={this.handleSubmit}>
+                <Field name="nom" value={this.state.nom} onChange = {this.handleChange}> Nom </Field>
+                <Field name="prenom" value={this.state.prenom} onChange = {this.handleChange}> Prénom</Field>
+                <Checkbox name="newsletter" value={this.state.newsletter} onChange = {this.handleChange}>S'abonner à la newsletter</Checkbox>
+                <div className = "form-group">
+                    <button className="btn btn-primary">Envoyer</button>
+                </div>
+            {this.state.newsletter ? <div>T'es un bon viens avec nous</div>: null}
+            {JSON.stringify(this.state)}
+        </form>
+        
+    }
+
+
+
+
+}
+
 ReactDOM.render(<Home/>, document.querySelector('#appjs'))
-
-
-
-
-
