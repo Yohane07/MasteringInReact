@@ -483,4 +483,4 @@ class Home extends React.Component{
 
 }
 
-ReactDOM.render(<Home/>, document.querySelector('#appjs'))
+ReactDOM.render(<Home/>, document.querySelector('#exercicejs'))
